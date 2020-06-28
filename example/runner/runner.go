@@ -15,7 +15,6 @@ import (
 	"path/filepath"
 
 	"github.com/admpub/service"
-	"github.com/kardianos/osext"
 )
 
 // Config is the runner app config structure.
@@ -95,7 +94,7 @@ func (p *program) run() {
 func (p *program) Stop(s service.Service) error {
 	close(p.exit)
 	logger.Info("Stopping ", p.DisplayName)
-	if p.cmd.ProcessState.Exited() == false {
+	if p.cmd.Process != nil {
 		p.cmd.Process.Kill()
 	}
 	if service.Interactive() {
@@ -105,7 +104,7 @@ func (p *program) Stop(s service.Service) error {
 }
 
 func getConfigPath() (string, error) {
-	fullexecpath, err := osext.Executable()
+	fullexecpath, err := os.Executable()
 	if err != nil {
 		return "", err
 	}
