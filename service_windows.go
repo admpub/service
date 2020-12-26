@@ -399,7 +399,9 @@ func (ws *windowsService) stopWait(s *mgr.Service) error {
 
 	timeDuration := time.Millisecond * 50
 
-	timeout := time.After(getStopTimeout() + (timeDuration * 2))
+	t := time.NewTimer(getStopTimeout() + (timeDuration * 2))
+	defer t.Stop()
+	timeout := t.C
 	tick := time.NewTicker(timeDuration)
 	defer tick.Stop()
 
