@@ -231,9 +231,29 @@ func lowPrivMgr() (*mgr.Mgr, error) {
 }
 
 func lowPrivSvc(m *mgr.Mgr, name string) (*mgr.Service, error) {
-	h, err := windows.OpenService(
-		m.Handle, syscall.StringToUTF16Ptr(name),
+	serviceName, err := syscall.UTF16PtrFromString(name)
+	if err != nil {
+		return nil, err
+	}
+	var h windows.Handle
+	h, err = windows.OpenService(
+		m.Handle, serviceName,
 		windows.SERVICE_QUERY_CONFIG|windows.SERVICE_QUERY_STATUS|windows.SERVICE_START|windows.SERVICE_STOP)
+	if err != nil {
+		return nil, err
+	}
+	return &mgr.Service{Handle: h, Name: name}, nil
+}
+
+func lowPrivSvcForQuery(m *mgr.Mgr, name string) (*mgr.Service, error) {
+	serviceName, err := syscall.UTF16PtrFromString(name)
+	if err != nil {
+		return nil, err
+	}
+	var h windows.Handle
+	h, err = windows.OpenService(
+		m.Handle, serviceName,
+		windows.SERVICE_QUERY_CONFIG|windows.SERVICE_QUERY_STATUS)
 	if err != nil {
 		return nil, err
 	}
@@ -410,7 +430,7 @@ func (ws *windowsService) Status() (Status, error) {
 	}
 	defer m.Disconnect()
 
-	s, err := lowPrivSvc(m, ws.Name)
+	s, err := lowPrivSvcForQuery(m, ws.Name)
 	if err != nil {
 		if errno, ok := err.(syscall.Errno); ok && errno == errnoServiceDoesNotExist {
 			return StatusUnknown, ErrNotInstalled

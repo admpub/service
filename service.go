@@ -96,7 +96,9 @@ const (
 	optionLaunchdConfig = "LaunchdConfig"
 	optionOpenRCScript  = "OpenRCScript"
 
-	optionLogDirectory = "LogDirectory"
+	optionLogDirectory      = "LogDirectory"
+	optionRestartSec        = "RestartSec"
+	optionRestartSecDefault = 120
 )
 
 // Status represents service status as an byte value
@@ -203,6 +205,8 @@ func New(i Interface, c *Config) (Service, error) {
 //   - LogOutput     bool   (false)            - Redirect StdErr & StandardOutPath to files.
 //
 //   - Restart       string (always)           - How shall service be restarted.
+//
+//   - RestartSec    int 	 (120)              - Delay seconds before restarting the service.
 //
 //   - SuccessExitStatus string ()             - The list of exit status that shall be considered as successful,
 //     in addition to the default ones.
