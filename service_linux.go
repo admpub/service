@@ -8,7 +8,6 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"strings"
 )
@@ -97,7 +96,7 @@ func init() {
 
 func binaryName(pid int) (string, error) {
 	statPath := fmt.Sprintf("/proc/%d/stat", pid)
-	dataBytes, err := ioutil.ReadFile(statPath)
+	dataBytes, err := os.ReadFile(statPath)
 	if err != nil {
 		return "", err
 	}
@@ -172,8 +171,8 @@ func isInContainerMountInfo(filePath string) (bool, error) {
 	scan := bufio.NewScanner(f)
 
 	lines := 0
-	for scan.Scan() && !(lines > maxlines) {
-		if strings.Contains(scan.Text(), "/docker/containers") {
+	for scan.Scan() && lines <= maxlines {
+		if strings.Contains(scan.Text(), "/docker/containers/") {
 			return true, nil
 		}
 		lines++
@@ -196,8 +195,8 @@ func isInContainerCGroup(cgroupPath string) (bool, error) {
 	scan := bufio.NewScanner(f)
 
 	lines := 0
-	for scan.Scan() && !(lines > maxlines) {
-		if strings.Contains(scan.Text(), "docker") || strings.Contains(scan.Text(), "lxc") {
+	for scan.Scan() && lines <= maxlines {
+		if strings.Contains(scan.Text(), "/docker/") || strings.Contains(scan.Text(), "/lxc/") {
 			return true, nil
 		}
 		lines++
