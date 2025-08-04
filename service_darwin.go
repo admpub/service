@@ -18,8 +18,6 @@ import (
 	"time"
 )
 
-const maxPathSize = 32 * 1024
-
 const (
 	version                   = "darwin-launchd"
 	defaultDarwinLogDirectory = "/var/log"
